@@ -4,3 +4,4 @@ This repo tracks the releases from [QCustomplot](https://gitlab.com/DerManu/QCus
 
 All credits for QCustomplot go to [DerManu](https://www.qcustomplot.com/).
 
+CMakeList.txt is added and maintained by [jgeudens](https://github.com/jgeudens/)
