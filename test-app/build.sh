@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later
 # Usage: ./build.sh <qt-version> [qt-root]   e.g. ./build.sh 6.8.3
 set -euo pipefail
 ver="${1:?usage: $0 <qt-version> [qt-root]}"

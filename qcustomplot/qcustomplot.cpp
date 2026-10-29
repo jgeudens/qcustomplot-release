@@ -23,6 +23,10 @@
 **          Version: 2.1.1                                                **
 ****************************************************************************/
 
+/* Modified by Jens Geudens, 2025-11-05: ported Qt 6.8 compatibility changes
+   (QCPAxisTickerDateTime time zone handling) from Wireshark,
+   https://gitlab.com/wireshark/wireshark/-/blob/master/ui/qt/widgets/qcustomplot.cpp */
+
 #include "qcustomplot.h"
 
 
