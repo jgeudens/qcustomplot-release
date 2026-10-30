@@ -4,6 +4,8 @@ project(qcustomplot-release LANGUAGES CXX)
 
 option(QCP_BUILD_TEST_APP "Build the test application" ON)
 
+add_compile_options(-Wall -Wextra -Werror)
+
 add_subdirectory(qcustomplot)
 
 if(QCP_BUILD_TEST_APP)
