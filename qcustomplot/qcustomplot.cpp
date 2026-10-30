@@ -27,7 +27,29 @@
    (QCPAxisTickerDateTime time zone handling) from Wireshark,
    https://gitlab.com/wireshark/wireshark/-/blob/master/ui/qt/widgets/qcustomplot.cpp */
 
+/* Modified by Jens Geudens, 2026-10-30: replaced QImage::mirrored(bool, bool), deprecated
+   since Qt 6.9, with QImage::flipped(Qt::Orientations) where available */
+
 #include "qcustomplot.h"
+
+/*! \internal
+
+  Returns \a image mirrored horizontally and/or vertically. Uses QImage::flipped on Qt 6.9 and
+  newer, where QImage::mirrored is deprecated.
+*/
+static QImage qcpMirroredImage(const QImage &image, bool horizontal, bool vertical)
+{
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+  Qt::Orientations orientations;
+  if (horizontal)
+    orientations |= Qt::Horizontal;
+  if (vertical)
+    orientations |= Qt::Vertical;
+  return image.flipped(orientations);
+#else
+  return image.mirrored(horizontal, vertical);
+#endif
+}
 
 
 /* including file 'src/vector2d.cpp'       */
@@ -20660,7 +20682,7 @@ void QCPColorScaleAxisRectPrivate::draw(QCPPainter *painter)
     mirrorVert = mParentColorScale->mColorAxis.data()->rangeReversed() && (mParentColorScale->type() == QCPAxis::atLeft || mParentColorScale->type() == QCPAxis::atRight);
   }
   
-  painter->drawImage(rect().adjusted(0, -1, 0, -1), mGradientImage.mirrored(mirrorHorz, mirrorVert));
+  painter->drawImage(rect().adjusted(0, -1, 0, -1), qcpMirroredImage(mGradientImage, mirrorHorz, mirrorVert));
   QCPAxisRect::draw(painter);
 }
 
@@ -26698,7 +26720,7 @@ void QCPColorMap::updateLegendIcon(Qt::TransformationMode transformMode, const Q
   {
     bool mirrorX = (keyAxis()->orientation() == Qt::Horizontal ? keyAxis() : valueAxis())->rangeReversed();
     bool mirrorY = (valueAxis()->orientation() == Qt::Vertical ? valueAxis() : keyAxis())->rangeReversed();
-    mLegendIcon = QPixmap::fromImage(mMapImage.mirrored(mirrorX, mirrorY)).scaled(thumbSize, Qt::KeepAspectRatio, transformMode);
+    mLegendIcon = QPixmap::fromImage(qcpMirroredImage(mMapImage, mirrorX, mirrorY)).scaled(thumbSize, Qt::KeepAspectRatio, transformMode);
   }
 }
 
@@ -26926,7 +26948,7 @@ void QCPColorMap::draw(QCPPainter *painter)
                                   coordsToPixels(mMapData->keyRange().upper, mMapData->valueRange().upper)).normalized();
     localPainter->setClipRect(tightClipRect, Qt::IntersectClip);
   }
-  localPainter->drawImage(imageRect, mMapImage.mirrored(mirrorX, mirrorY));
+  localPainter->drawImage(imageRect, qcpMirroredImage(mMapImage, mirrorX, mirrorY));
   if (mTightBoundary)
     localPainter->setClipRegion(clipBackup);
   localPainter->setRenderHint(QPainter::SmoothPixmapTransform, smoothBackup);
@@ -30351,7 +30373,7 @@ void QCPItemPixmap::updateScaledPixmap(QRect finalRect, bool flipHorz, bool flip
     {
       mScaledPixmap = mPixmap.scaled(finalRect.size()*devicePixelRatio, mAspectRatioMode, mTransformationMode);
       if (flipHorz || flipVert)
-        mScaledPixmap = QPixmap::fromImage(mScaledPixmap.toImage().mirrored(flipHorz, flipVert));
+        mScaledPixmap = QPixmap::fromImage(qcpMirroredImage(mScaledPixmap.toImage(), flipHorz, flipVert));
 #ifdef QCP_DEVICEPIXELRATIO_SUPPORTED
       mScaledPixmap.setDevicePixelRatio(devicePixelRatio);
 #endif
